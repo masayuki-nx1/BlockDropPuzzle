@@ -127,8 +127,6 @@ void rotate90(Block* block);			//ブロックの配列を90度回転させる
 void rotate();							//ミノを回転させる(回転可能かも判定する)
 void fall();							//ミノの自然落下処理
 void eraseLine();						//ラインがそろったら消去する
-bool isGameOver();						//ゲームオーバーチェック(一番上まで詰みあがった時)
-
 
 //main関数
 int main(void) {
@@ -139,7 +137,6 @@ int main(void) {
 		spawnBlock();
 		//毎回ブロックを消去する
 		eraseBlock();
-
 
 		//キー入力、プレイヤーの移動
 		int key = 0;
@@ -162,16 +159,12 @@ int main(void) {
 
 		//ラインを消去する
 		eraseLine();
-
 		//ブロックをフィールドに書込む
 		drawBlock();
-
 		//マップの更新
 		drawField();
-
 		//待機する
 		Sleep(5);
-
 		//ゲームオーバー処理
 		if (gameOverFlag) {
 			Sleep(1000);
@@ -350,10 +343,4 @@ void eraseLine() {
 			}
 		}
 	}
-}
-
-
-//ゲームオーバーチェック(一番上まで詰みあがった時)
-bool isGameOver() {
-	return FALSE;
 }
