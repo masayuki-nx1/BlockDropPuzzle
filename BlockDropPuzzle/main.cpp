@@ -115,20 +115,19 @@ int field[FIELD_HEIGHT][FIELD_WIDTH] = {
 
 
 // 関数のプロトタイプ宣言
-void drawField();				//ゲーム画面を描画する
-void cursor(int x, int y);		//カーソル位置を変更する	
-void color(int col);			//文字の色を変更する
-bool isCollision(int moveX,int moveY);				//ブロックの衝突判定
-void eraseBlock();
-void drawBlock();
-void spawnBlock();				//ブロックを生成する
-void move(int moveX, int moveY);				//ミノを左右に移動する
-void rotate90(Block* block);	//ブロックの配列を90度回転させる
-void rotate();					//ミノを回転させる(回転可能かも判定する)
-//void drop();					//ミノを急速に落下させる
-void fall();					//ミノの自然落下処理
-void eraseLine();				//ラインがそろったら消去する
-bool isGameOver();				//ゲームオーバーチェック(一番上まで詰みあがった時)
+void drawField();						//ゲーム画面を描画する
+void cursor(int x, int y);				//カーソル位置を変更する	
+void color(int col);					//文字の色を変更する
+bool isCollision(int moveX,int moveY);	//ブロックの衝突判定
+void eraseBlock();						//ブロックを削除する
+void drawBlock();						//ブロックをフィールドに書込む
+void spawnBlock();						//ブロックを生成する
+void move(int moveX, int moveY);		//ミノを左右に移動する
+void rotate90(Block* block);			//ブロックの配列を90度回転させる
+void rotate();							//ミノを回転させる(回転可能かも判定する)
+void fall();							//ミノの自然落下処理
+void eraseLine();						//ラインがそろったら消去する
+bool isGameOver();						//ゲームオーバーチェック(一番上まで詰みあがった時)
 
 
 //main関数
@@ -161,6 +160,9 @@ int main(void) {
 			fallCnt = 0;
 		}
 
+		//ラインを消去する
+		eraseLine();
+
 		//ブロックをフィールドに書込む
 		drawBlock();
 
@@ -168,7 +170,7 @@ int main(void) {
 		drawField();
 
 		//待機する
-		Sleep(50);
+		Sleep(5);
 
 		//ゲームオーバー処理
 		if (gameOverFlag) {
@@ -185,7 +187,7 @@ void drawField(void) {
 			if (field[y][x] == 9) {
 				color(WHITE);
 				cursor(x * 2, y);
-				printf("++");
+				printf("##");
 			}
 			if (field[y][x] == 1) {
 				color(RED);
@@ -210,7 +212,7 @@ void color(int col) {
 	printf("\x1b[3%dm", col);
 }
 
-//
+//ブロックの衝突判定
 bool isCollision(int moveX,int moveY) {
 	int size = currentBlock.size;
 	for (int i = 0; i < size; i++) {
@@ -223,7 +225,7 @@ bool isCollision(int moveX,int moveY) {
 	return FALSE;
 }
 
-//
+//ブロックを削除する
 void eraseBlock() {
 	int size = currentBlock.size;
 
@@ -236,7 +238,7 @@ void eraseBlock() {
 	}
 }
 
-//
+//ブロックをフィールドに書込む
 void drawBlock(){
 	int size = currentBlock.size;
 
@@ -315,11 +317,6 @@ void rotate() {
 	}
 }
 
-////ミノを急速に落下させる
-//void drop() {
-//
-//}
-
 //ミノの自然落下処理
 void fall() {
 	if(isCollision(0, 1)){
@@ -332,8 +329,29 @@ void fall() {
 
 //ラインがそろったら消去する
 void eraseLine() {
-
+	for (int y = 0; y < FIELD_HEIGHT - 1; y++) {
+		bool lineFull = true;
+		//ラインがそろったか？
+		for (int x = 1; x < FIELD_WIDTH - 1; x++) {
+			if (field[y][x] == 0) {
+				lineFull = false;
+				break;
+			}
+		}
+		//ラインが揃ったらブロックを一段下げる
+		if (lineFull) {
+			for (int j = y; j > 0; j--) {
+				for (int x = 1; x < FIELD_WIDTH - 1; x++) {
+					field[j][x] = field[j - 1][x];
+				}
+			}
+			for (int x = 1; x < FIELD_WIDTH - 1; x++) {
+				field[0][x] = 0;
+			}
+		}
+	}
 }
+
 
 //ゲームオーバーチェック(一番上まで詰みあがった時)
 bool isGameOver() {
