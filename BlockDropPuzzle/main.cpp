@@ -80,7 +80,11 @@ Block currentBlock;
 int currentX = FIELD_WIDTH / 2;
 int currentY = 0;
 
-//
+//ブロックが落下を調整するカウンタ
+int fallCnt = 0;
+int fallWait = 10;
+
+bool fallFlag = FALSE;
 
 //#:壁、@:ブロック
 int field[FIELD_HEIGHT][FIELD_WIDTH] = {
@@ -113,13 +117,14 @@ int field[FIELD_HEIGHT][FIELD_WIDTH] = {
 void drawField();				//ゲーム画面を描画する
 void cursor(int x, int y);		//カーソル位置を変更する	
 void color(int col);			//文字の色を変更する
+bool isCollision(int moveX,int moveY);				//ブロックの衝突判定
 void eraseBlock();
 void drawBlock();
 void spawnBlock();				//ブロックを生成する
-void move(int x);				//ミノを左右に移動する
+void move(int moveX, int moveY);				//ミノを左右に移動する
 void rotate90(Block* block);	//ブロックの配列を90度回転させる
 void rotate();					//ミノを回転させる(回転可能かも判定する)
-void drop();					//ミノを急速に落下させる
+//void drop();					//ミノを急速に落下させる
 void fall();					//ミノの自然落下処理
 void eraseLine();				//ラインがそろったら消去する
 bool isGameOver();				//ゲームオーバーチェック(一番上まで詰みあがった時)
@@ -127,29 +132,37 @@ bool isGameOver();				//ゲームオーバーチェック(一番上まで詰みあがった時)
 
 //main関数
 int main(void) {
-	spawnBlock();
+
 	//ゲームループ
 	while (1) {
+		//ブロックを生成する
+		spawnBlock();
 		//毎回ブロックを消去する
 		eraseBlock();
+
 
 		//キー入力、プレイヤーの移動
 		int key = 0;
 		if (kbhit())key = getch();
 		//下まで落下させる
-		if (key == KEY_DOWN) drop();
+		if (key == KEY_DOWN) fall();
 		//移動左
-		if (key == KEY_LEFT) move(-1);
+		if (key == KEY_LEFT) move(-1,0);
 		//移動右
-		if (key == KEY_RIGHT) move(1);
+		if (key == KEY_RIGHT) move(1,0);
 		//回転
 		if (key == KEY_SPACE) rotate();
+
+		//ミノを自然落下させる
+		fallCnt++;
+		if (fallCnt > fallWait) {
+			fall();
+			fallCnt = 0;
+		}
 
 		//ブロックをフィールドに書込む
 		drawBlock();
 
-		//ミノを自然落下させる
-		fall();
 		//マップの更新
 		drawField();
 
@@ -194,6 +207,20 @@ void color(int col) {
 	printf("\x1b[3%dm", col);
 }
 
+//
+bool isCollision(int moveX,int moveY) {
+	int size = currentBlock.size;
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			if (currentBlock.shape[i][j] == 1 && field[currentY + i + moveY][currentX + j + moveX] == 1) {
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
+//
 void eraseBlock() {
 	int size = currentBlock.size;
 
@@ -206,12 +233,15 @@ void eraseBlock() {
 	}
 }
 
+//
 void drawBlock(){
 	int size = currentBlock.size;
 
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
-			field[currentY + i][currentX + j] = currentBlock.shape[i][j];
+			if (currentBlock.shape[i][j] == 1) {
+				field[currentY + i][currentX + j] = currentBlock.shape[i][j];
+			}
 		}
 	}
 
@@ -219,6 +249,8 @@ void drawBlock(){
 
 //ブロックをランダムに生成する
 void spawnBlock() {
+	if (fallFlag) return;
+	fallFlag = TRUE;
 	int size = currentBlock.size;
 	srand(time(NULL));
 	currentBlock = blocks[rand() % 7];
@@ -232,8 +264,10 @@ void spawnBlock() {
 }
 
 //ミノを左右に移動する
-void move(int x) {
-
+void move(int moveX, int moveY) {
+	if (!isCollision(moveX,moveY ) && fallFlag) {
+		currentX += moveX;
+	}
 }
 
 //ブロックの配列を90度回転させる
@@ -260,17 +294,25 @@ void rotate90(Block* block) {
 //ミノを回転させる
 void rotate() {
 	//Block temp = currentBlock;
-	rotate90(&currentBlock);
+	
+	if (!isCollision(0, 1) && fallFlag) {
+		rotate90(&currentBlock);
+	}
 }
 
-//ミノを急速に落下させる
-void drop() {
-
-}
+////ミノを急速に落下させる
+//void drop() {
+//
+//}
 
 //ミノの自然落下処理
 void fall() {
-
+	if(isCollision(0, 1)){
+		fallFlag = FALSE; 
+	}
+	else if (fallFlag) {
+		currentY++;
+	}
 }
 
 //ラインがそろったら消去する
