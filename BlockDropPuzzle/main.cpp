@@ -85,31 +85,32 @@ int fallCnt = 0;
 int fallWait = 10;
 
 bool fallFlag = FALSE;
+bool gameOverFlag = FALSE;
 
-//#:壁、@:ブロック
+
 int field[FIELD_HEIGHT][FIELD_WIDTH] = {
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,0,0,0,0,0,0,0,0,0,0,1 },
-	{ 1,1,1,1,1,1,1,1,1,1,1,1 }
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,0,0,0,0,0,0,0,0,0,0,9 },
+	{ 9,9,9,9,9,9,9,9,9,9,9,9 }
 };
 
 
@@ -170,7 +171,7 @@ int main(void) {
 		Sleep(50);
 
 		//ゲームオーバー処理
-		if (isGameOver()) {
+		if (gameOverFlag) {
 			Sleep(1000);
 			return 0;
 		}
@@ -181,17 +182,19 @@ int main(void) {
 void drawField(void) {
 	for (int y = 0; y < FIELD_HEIGHT; y++) {
 		for (int x = 0; x < FIELD_WIDTH; x++) {
-			//if (field[y][x] == '#') color(GREEN);
-			//if (field[y][x] == 'B') color(YELLOW);
-			//if (field[y][x] == 'G') color(WHITE);
-			//if (field[y][x] == 'P') color(RED);
+			if (field[y][x] == 9) {
+				color(WHITE);
+				cursor(x * 2, y);
+				printf("++");
+			}
 			if (field[y][x] == 1) {
-				cursor(x, y);
-				printf("#");
+				color(RED);
+				cursor(x * 2, y);
+				printf("[]");
 			}
 			if (field[y][x] == 0) {
-				cursor(x, y);
-				printf(" ");
+				cursor(x * 2, y);
+				printf("  ");
 			}
 		}
 	}
@@ -212,7 +215,7 @@ bool isCollision(int moveX,int moveY) {
 	int size = currentBlock.size;
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
-			if (currentBlock.shape[i][j] == 1 && field[currentY + i + moveY][currentX + j + moveX] == 1) {
+			if (currentBlock.shape[i][j] == 1 && (field[currentY + i + moveY][currentX + j + moveX] == 1 || field[currentY + i + moveY][currentX + j + moveX] == 9)) {
 				return TRUE;
 			}
 		}
@@ -251,14 +254,22 @@ void drawBlock(){
 void spawnBlock() {
 	if (fallFlag) return;
 	fallFlag = TRUE;
+
 	int size = currentBlock.size;
 	srand(time(NULL));
 	currentBlock = blocks[rand() % 7];
 	currentX = FIELD_WIDTH / 2 - size / 2;
 	currentY = 0;
+	//ブロックを置けなかったらゲームオーバー
+	if (isCollision(0, 0)) {
+		gameOverFlag = TRUE;
+	}
+
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
-			field[currentY + i][currentX + j] = currentBlock.shape[i][j];
+			if (currentBlock.shape[i][j] == 1 && !isCollision(0,0)) {
+				field[currentY + i][currentX + j] = currentBlock.shape[i][j];
+			}
 		}
 	}
 }
@@ -293,10 +304,14 @@ void rotate90(Block* block) {
 
 //ミノを回転させる
 void rotate() {
-	//Block temp = currentBlock;
+	Block temp = currentBlock;
 	
 	if (!isCollision(0, 1) && fallFlag) {
 		rotate90(&currentBlock);
+		//もし回転したときに衝突した場合、回転前に戻す
+		if (isCollision(0, 0)) {
+			currentBlock = temp;
+		}
 	}
 }
 
