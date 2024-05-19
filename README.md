@@ -1,12 +1,11 @@
-# BlockDropPuzzle
-# テトリスゲーム in C言語
+# BlockDropPuzzle(テトリス)
 
 このリポジトリは、C言語で実装されたシンプルなテトリスゲームです。C言語の学習用のために作成しました。Visual Studio 2022 Communityを使用し、Windows 11で開発しました。
 
 ## 開発環境
 
 - **IDE**: Visual Studio 2022 Community
-- **オペレーティングシステム**: Windows 11
+- **OS**: Windows 11
 - **プログラミング言語**: C
 
 ## ビルドと実行方法
@@ -32,4 +31,4 @@
 
 ## スクリーンショット
 
-![ゲームのスクリーンショット](images/image01.png)
+![ゲームのスクリーンショット](Images/image01.png)
