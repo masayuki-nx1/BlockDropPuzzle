@@ -141,14 +141,12 @@ int main(void) {
 		//キー入力、プレイヤーの移動
 		int key = 0;
 		if (kbhit())key = getch();
-		//下まで落下させる
-		if (key == KEY_DOWN) fall();
-		//移動左
-		if (key == KEY_LEFT) move(-1,0);
-		//移動右
-		if (key == KEY_RIGHT) move(1,0);
-		//回転
-		if (key == KEY_SPACE) rotate();
+		switch (key) {
+		case KEY_DOWN: fall(); break;
+		case KEY_LEFT: move(-1, 0); break;
+		case KEY_RIGHT: move(1, 0); break;
+		case KEY_SPACE: rotate(); break;
+		}
 
 		//ミノを自然落下させる
 		fallCnt++;
